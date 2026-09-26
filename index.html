@@ -1,0 +1,1358 @@
+<!doctype html>
+<html lang="vi">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#f4f6f3">
+    <title>Kho Mộc — Quản lý nhập xuất</title>
+    <style>
+        :root {
+            color-scheme: light;
+            --ink: #1d2924;
+            --muted: #75817a;
+            --line: #e3e9e4;
+            --paper: #ffffff;
+            --canvas: #f4f6f3;
+            --green: #176b50;
+            --green-dark: #104a39;
+            --green-soft: #e8f2ed;
+            --lime: #d8f078;
+            --orange: #bd562e;
+            --orange-soft: #fbede6;
+            --shadow: 0 12px 36px rgba(31, 54, 42, .06);
+            font-family: "DM Sans", "Avenir Next", Avenir, sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-width: 320px;
+            background: var(--canvas);
+            color: var(--ink);
+        }
+
+        button,
+        input,
+        select {
+            font: inherit;
+        }
+
+        button {
+            cursor: pointer;
+        }
+
+        .app {
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            position: fixed;
+            inset: 0 auto 0 0;
+            z-index: 5;
+            width: 242px;
+            padding: 27px 17px;
+            display: flex;
+            flex-direction: column;
+            color: #f5f7f4;
+            background: var(--green-dark);
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 11px;
+            padding: 0 11px;
+            margin-bottom: 46px;
+        }
+
+        .brand-mark {
+            display: grid;
+            place-items: center;
+            width: 35px;
+            height: 35px;
+            border-radius: 11px;
+            color: var(--green-dark);
+            background: var(--lime);
+            font-size: 17px;
+            font-weight: 800;
+        }
+
+        .brand-name {
+            font-size: 16px;
+            font-weight: 700;
+            letter-spacing: .2px;
+        }
+
+        .brand-caption {
+            margin-top: 2px;
+            color: #a8c3b5;
+            font-size: 11px;
+        }
+
+        .nav-label {
+            padding: 0 12px;
+            margin: 0 0 11px;
+            color: #90ad9e;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 1.4px;
+            text-transform: uppercase;
+        }
+
+        .nav {
+            display: grid;
+            gap: 5px;
+        }
+
+        .nav-button {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            width: 100%;
+            padding: 11px 12px;
+            border: 0;
+            border-radius: 7px;
+            color: #c2d3ca;
+            background: transparent;
+            text-align: left;
+            font-size: 13px;
+            transition: background .18s, color .18s;
+        }
+
+        .nav-button:hover {
+            color: white;
+            background: rgba(255, 255, 255, .08);
+        }
+
+        .nav-button[aria-current="page"] {
+            color: var(--green-dark);
+            background: var(--lime);
+            font-weight: 700;
+        }
+
+        .nav-icon {
+            width: 19px;
+            font-size: 15px;
+            text-align: center;
+        }
+
+        .sidebar-foot {
+            margin-top: auto;
+            padding: 15px 12px 2px;
+            border-top: 1px solid rgba(255, 255, 255, .14);
+            color: #a8c3b5;
+            font-size: 11px;
+            line-height: 1.6;
+        }
+
+        .sidebar-foot strong {
+            display: block;
+            color: #eff5f1;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .main {
+            min-height: 100vh;
+            margin-left: 242px;
+            padding: 0 42px 44px;
+        }
+
+        .topbar {
+            height: 74px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--line);
+        }
+
+        .crumb {
+            color: var(--muted);
+            font-size: 12px;
+        }
+
+        .top-right {
+            display: flex;
+            align-items: center;
+            gap: 19px;
+        }
+
+        .today {
+            color: var(--muted);
+            font-size: 12px;
+        }
+
+        .avatar {
+            display: grid;
+            place-items: center;
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            color: var(--green-dark);
+            background: #dce9df;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .page-heading {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            gap: 20px;
+            padding: 31px 0 25px;
+        }
+
+        .eyebrow {
+            margin: 0 0 8px;
+            color: var(--green);
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 27px;
+            line-height: 1.2;
+            letter-spacing: 0;
+        }
+
+        .page-description {
+            margin: 7px 0 0;
+            color: var(--muted);
+            font-size: 13px;
+        }
+
+        .actions {
+            display: flex;
+            gap: 9px;
+        }
+
+        .button {
+            min-height: 39px;
+            padding: 0 14px;
+            border: 1px solid var(--line);
+            border-radius: 6px;
+            color: var(--ink);
+            background: var(--paper);
+            font-size: 12px;
+            font-weight: 600;
+            transition: .16s ease;
+        }
+
+        .button:hover {
+            border-color: #b9c9bf;
+            transform: translateY(-1px);
+        }
+
+        .button-primary {
+            border-color: var(--green);
+            color: #fff;
+            background: var(--green);
+        }
+
+        .button-primary:hover {
+            border-color: var(--green-dark);
+            background: var(--green-dark);
+        }
+
+        .button-in {
+            border-color: #c9e0d2;
+            color: var(--green);
+            background: var(--green-soft);
+        }
+
+        .button-out {
+            border-color: #f0d2c3;
+            color: var(--orange);
+            background: var(--orange-soft);
+        }
+
+        .button-small {
+            min-height: 31px;
+            padding: 0 10px;
+            font-size: 11px;
+        }
+
+        .metrics {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 13px;
+            margin-bottom: 19px;
+        }
+
+        .metric {
+            min-height: 124px;
+            padding: 17px 18px;
+            border: 1px solid var(--line);
+            border-radius: 7px;
+            background: var(--paper);
+        }
+
+        .metric-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            color: var(--muted);
+            font-size: 11px;
+        }
+
+        .metric-symbol {
+            display: grid;
+            place-items: center;
+            width: 28px;
+            height: 28px;
+            border-radius: 7px;
+            color: var(--green);
+            background: var(--green-soft);
+            font-size: 14px;
+        }
+
+        .metric-value {
+            margin-top: 12px;
+            font-size: 27px;
+            line-height: 1;
+            font-weight: 700;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .metric-note {
+            margin-top: 7px;
+            color: var(--muted);
+            font-size: 10px;
+        }
+
+        .metric-note.alert {
+            color: var(--orange);
+        }
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: minmax(0, 1.65fr) minmax(255px, .85fr);
+            gap: 15px;
+            align-items: start;
+        }
+
+        .panel {
+            overflow: hidden;
+            border: 1px solid var(--line);
+            border-radius: 7px;
+            background: var(--paper);
+        }
+
+        .panel-head {
+            min-height: 61px;
+            padding: 14px 17px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            border-bottom: 1px solid var(--line);
+        }
+
+        .panel-title {
+            margin: 0;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .panel-subtitle {
+            margin: 4px 0 0;
+            color: var(--muted);
+            font-size: 10px;
+        }
+
+        .text-button {
+            padding: 5px 0;
+            border: 0;
+            color: var(--green);
+            background: transparent;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .table-wrap {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            white-space: nowrap;
+        }
+
+        th {
+            padding: 10px 15px;
+            color: #849087;
+            background: #fafbf9;
+            font-size: 9px;
+            font-weight: 700;
+            letter-spacing: .65px;
+            text-transform: uppercase;
+        }
+
+        td {
+            padding: 12px 15px;
+            border-top: 1px solid #edf0ed;
+            font-size: 11px;
+        }
+
+        tbody tr:hover {
+            background: #fbfcfa;
+        }
+
+        .product-cell {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .product-thumb {
+            display: grid;
+            place-items: center;
+            width: 32px;
+            height: 32px;
+            flex: 0 0 32px;
+            border-radius: 6px;
+            background: #f0f3ee;
+            font-size: 15px;
+        }
+
+        .product-name {
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .product-sku {
+            margin-top: 3px;
+            color: var(--muted);
+            font-size: 9px;
+        }
+
+        .qty {
+            font-weight: 700;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .status {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 4px 7px;
+            border-radius: 20px;
+            color: var(--green);
+            background: var(--green-soft);
+            font-size: 9px;
+            font-weight: 700;
+        }
+
+        .status::before {
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            background: currentColor;
+            content: "";
+        }
+
+        .status-low {
+            color: var(--orange);
+            background: var(--orange-soft);
+        }
+
+        .stock-list {
+            padding: 2px 16px 8px;
+        }
+
+        .stock-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            padding: 12px 0;
+            border-bottom: 1px solid #edf0ed;
+        }
+
+        .stock-row:last-child {
+            border-bottom: 0;
+        }
+
+        .stock-product {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            min-width: 0;
+        }
+
+        .stock-product .product-thumb {
+            width: 30px;
+            height: 30px;
+            flex-basis: 30px;
+            font-size: 14px;
+        }
+
+        .stock-name {
+            overflow: hidden;
+            font-size: 10px;
+            font-weight: 600;
+            text-overflow: ellipsis;
+        }
+
+        .stock-sku {
+            margin-top: 3px;
+            color: var(--muted);
+            font-size: 9px;
+        }
+
+        .stock-count {
+            color: var(--orange);
+            font-size: 11px;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .activity-panel {
+            margin-top: 15px;
+        }
+
+        .movement {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 10px;
+            font-weight: 700;
+        }
+
+        .movement-in {
+            color: var(--green);
+        }
+
+        .movement-out {
+            color: var(--orange);
+        }
+
+        .empty {
+            padding: 28px 15px;
+            color: var(--muted);
+            text-align: center;
+            font-size: 12px;
+        }
+
+        .toolbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin: 0 0 14px;
+        }
+
+        .search {
+            width: min(290px, 100%);
+            height: 38px;
+            padding: 0 12px;
+            border: 1px solid var(--line);
+            border-radius: 6px;
+            outline: none;
+            color: var(--ink);
+            background: white;
+            font-size: 12px;
+        }
+
+        .search:focus,
+        input:focus,
+        select:focus {
+            border-color: #77a28c;
+            box-shadow: 0 0 0 3px rgba(23, 107, 80, .1);
+            outline: none;
+        }
+
+        .toolbar-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .section-panel {
+            min-height: 290px;
+        }
+
+        .history-filter {
+            height: 36px;
+            padding: 0 9px;
+            border: 1px solid var(--line);
+            border-radius: 6px;
+            color: var(--ink);
+            background: white;
+            font-size: 11px;
+        }
+
+        dialog {
+            width: min(440px, calc(100vw - 30px));
+            padding: 0;
+            border: 0;
+            border-radius: 9px;
+            box-shadow: 0 25px 80px rgba(18, 40, 29, .24);
+        }
+
+        dialog::backdrop {
+            background: rgba(20, 36, 28, .42);
+            backdrop-filter: blur(2px);
+        }
+
+        .dialog-head {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            padding: 20px 21px 15px;
+            border-bottom: 1px solid var(--line);
+        }
+
+        .dialog-head h2 {
+            margin: 0;
+            font-size: 17px;
+        }
+
+        .dialog-head p {
+            margin: 5px 0 0;
+            color: var(--muted);
+            font-size: 11px;
+        }
+
+        .close-button {
+            width: 30px;
+            height: 30px;
+            border: 0;
+            border-radius: 5px;
+            color: var(--muted);
+            background: #f1f4f1;
+            font-size: 16px;
+        }
+
+        .form {
+            display: grid;
+            gap: 13px;
+            padding: 18px 21px 21px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .field {
+            display: grid;
+            gap: 6px;
+            color: #526158;
+            font-size: 10px;
+            font-weight: 700;
+        }
+
+        .field input,
+        .field select {
+            width: 100%;
+            height: 38px;
+            padding: 0 10px;
+            border: 1px solid var(--line);
+            border-radius: 5px;
+            color: var(--ink);
+            background: #fff;
+            font-size: 12px;
+            font-weight: 400;
+        }
+
+        .form-error {
+            display: none;
+            padding: 9px 10px;
+            border-radius: 5px;
+            color: #9c3f24;
+            background: var(--orange-soft);
+            font-size: 11px;
+        }
+
+        .form-error.show {
+            display: block;
+        }
+
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+            padding-top: 3px;
+        }
+
+        .toast {
+            position: fixed;
+            right: 24px;
+            bottom: 23px;
+            z-index: 10;
+            padding: 12px 16px;
+            border-radius: 6px;
+            color: white;
+            background: var(--green-dark);
+            box-shadow: var(--shadow);
+            font-size: 12px;
+            opacity: 0;
+            transform: translateY(8px);
+            pointer-events: none;
+            transition: .2s ease;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .footer-note {
+            padding: 12px 0 0;
+            color: var(--muted);
+            font-size: 10px;
+            text-align: right;
+        }
+
+        @media (max-width: 1050px) {
+            .main {
+                padding-right: 25px;
+                padding-left: 25px;
+            }
+
+            .metrics {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .content-grid {
+                grid-template-columns: minmax(0, 1.4fr) minmax(230px, .8fr);
+            }
+        }
+
+        @media (max-width: 760px) {
+            .sidebar {
+                position: sticky;
+                inset: 0 0 auto;
+                width: 100%;
+                height: auto;
+                padding: 10px 13px;
+            }
+
+            .brand {
+                margin: 0 0 10px;
+                padding: 0 4px;
+            }
+
+            .brand-mark {
+                width: 30px;
+                height: 30px;
+            }
+
+            .nav-label,
+            .sidebar-foot {
+                display: none;
+            }
+
+            .nav {
+                display: flex;
+                gap: 4px;
+                overflow-x: auto;
+            }
+
+            .nav-button {
+                justify-content: center;
+                gap: 6px;
+                width: auto;
+                min-width: 0;
+                padding: 8px 10px;
+                white-space: nowrap;
+                font-size: 11px;
+            }
+
+            .nav-icon {
+                width: auto;
+            }
+
+            .main {
+                min-height: auto;
+                margin-left: 0;
+                padding: 0 16px 28px;
+            }
+
+            .topbar {
+                height: 53px;
+            }
+
+            .today {
+                font-size: 10px;
+            }
+
+            .top-right {
+                gap: 10px;
+            }
+
+            .page-heading {
+                align-items: flex-start;
+                padding: 24px 0 19px;
+            }
+
+            h1 {
+                font-size: 23px;
+            }
+
+            .page-description {
+                max-width: 390px;
+                font-size: 11px;
+                line-height: 1.5;
+            }
+
+            .page-heading>.actions {
+                display: none;
+            }
+
+            .metrics {
+                gap: 9px;
+            }
+
+            .metric {
+                min-height: 108px;
+                padding: 13px;
+            }
+
+            .metric-value {
+                font-size: 23px;
+            }
+
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .toolbar {
+                align-items: stretch;
+                flex-direction: column;
+            }
+
+            .search {
+                width: 100%;
+            }
+
+            .toolbar-actions {
+                justify-content: flex-end;
+            }
+
+            .activity-panel {
+                margin-top: 12px;
+            }
+        }
+
+        @media (max-width: 390px) {
+            .nav-button {
+                padding: 8px 7px;
+                font-size: 10px;
+            }
+
+            .metrics {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .metric-top {
+                font-size: 10px;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+
+            *,
+            *::before,
+            *::after {
+                scroll-behavior: auto !important;
+                transition-duration: .01ms !important;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app">
+        <aside class="sidebar">
+            <div class="brand">
+                <div class="brand-mark">M</div>
+                <div>
+                    <div class="brand-name">Kho Mộc</div>
+                    <div class="brand-caption">Quản lý kho hàng</div>
+                </div>
+            </div>
+            <p class="nav-label">Không gian làm việc</p>
+            <nav class="nav" aria-label="Điều hướng chính">
+                <button class="nav-button" data-view="overview" aria-current="page"><span class="nav-icon">⌂</span>Tổng
+                    quan</button>
+                <button class="nav-button" data-view="products"><span class="nav-icon">▦</span>Hàng hóa</button>
+                <button class="nav-button" data-view="history"><span class="nav-icon">↕</span>Nhập xuất</button>
+            </nav>
+            <div class="sidebar-foot"><strong>Kho chính · Hà Nội</strong>Dữ liệu được lưu trên thiết bị này</div>
+        </aside>
+
+        <main class="main">
+            <header class="topbar">
+                <div class="crumb">Kho hàng <span aria-hidden="true">/</span> <span id="breadcrumb">Tổng quan</span>
+                </div>
+                <div class="top-right"><time class="today" id="today"></time>
+                    <div class="avatar" aria-label="Tài khoản quản lý">QL</div>
+                </div>
+            </header>
+            <section class="page-heading">
+                <div>
+                    <p class="eyebrow">Kho chính · Hà Nội</p>
+                    <h1 id="page-title">Tổng quan kho</h1>
+                    <p class="page-description" id="page-description">Theo dõi lượng hàng và các giao dịch gần đây.</p>
+                </div>
+                <div class="actions"><button class="button button-in" data-transaction="in">+ Phiếu nhập</button><button
+                        class="button button-out" data-transaction="out">− Phiếu xuất</button></div>
+            </section>
+            <section class="metrics" aria-label="Chỉ số kho">
+                <article class="metric">
+                    <div class="metric-top"><span>Mặt hàng</span><span class="metric-symbol">▦</span></div>
+                    <div class="metric-value" id="metric-products">0</div>
+                    <div class="metric-note">Mã hàng đang quản lý</div>
+                </article>
+                <article class="metric">
+                    <div class="metric-top"><span>Tổng tồn kho</span><span class="metric-symbol">▤</span></div>
+                    <div class="metric-value" id="metric-units">0</div>
+                    <div class="metric-note">Đơn vị sản phẩm</div>
+                </article>
+                <article class="metric">
+                    <div class="metric-top"><span>Đã nhập hôm nay</span><span class="metric-symbol">↙</span></div>
+                    <div class="metric-value" id="metric-in">0</div>
+                    <div class="metric-note">Đơn vị hàng hóa</div>
+                </article>
+                <article class="metric">
+                    <div class="metric-top"><span>Cần bổ sung</span><span class="metric-symbol">!</span></div>
+                    <div class="metric-value" id="metric-low">0</div>
+                    <div class="metric-note alert">Mặt hàng dưới định mức</div>
+                </article>
+            </section>
+
+            <div class="content-grid" id="overview-content">
+                <section class="panel">
+                    <div class="panel-head">
+                        <div>
+                            <h2 class="panel-title">Tồn kho gần đây</h2>
+                            <p class="panel-subtitle">Tình trạng các mặt hàng trong kho</p>
+                        </div><button class="text-button" data-go="products">Xem tất cả →</button>
+                    </div>
+                    <div class="table-wrap">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Sản phẩm</th>
+                                    <th>Danh mục</th>
+                                    <th>Tồn kho</th>
+                                    <th>Trạng thái</th>
+                                </tr>
+                            </thead>
+                            <tbody id="overview-products"></tbody>
+                        </table>
+                    </div>
+                </section>
+                <section class="panel">
+                    <div class="panel-head">
+                        <div>
+                            <h2 class="panel-title">Sắp hết hàng</h2>
+                            <p class="panel-subtitle">Sản phẩm cần được bổ sung</p>
+                        </div>
+                    </div>
+                    <div class="stock-list" id="low-stock-list"></div>
+                </section>
+            </div>
+            <section class="panel activity-panel" id="overview-activity">
+                <div class="panel-head">
+                    <div>
+                        <h2 class="panel-title">Giao dịch gần đây</h2>
+                        <p class="panel-subtitle">Hoạt động nhập xuất mới nhất</p>
+                    </div><button class="text-button" data-go="history">Xem lịch sử →</button>
+                </div>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Loại phiếu</th>
+                                <th>Sản phẩm</th>
+                                <th>Số lượng</th>
+                                <th>Ghi chú</th>
+                                <th>Thời gian</th>
+                            </tr>
+                        </thead>
+                        <tbody id="overview-history"></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <section id="products-view" hidden>
+                <div class="toolbar"><input class="search" id="product-search" type="search"
+                        placeholder="Tìm theo tên hoặc mã sản phẩm..." aria-label="Tìm sản phẩm">
+                    <div class="toolbar-actions"><button class="button" id="export-button">↓ Xuất CSV</button><button
+                            class="button button-primary" id="add-product-button">+ Thêm sản phẩm</button></div>
+                </div>
+                <section class="panel section-panel">
+                    <div class="table-wrap">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Sản phẩm</th>
+                                    <th>Danh mục</th>
+                                    <th>Đơn vị</th>
+                                    <th>Tồn kho</th>
+                                    <th>Định mức</th>
+                                    <th>Trạng thái</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody id="products-table"></tbody>
+                        </table>
+                    </div>
+                </section>
+            </section>
+            <section id="history-view" hidden>
+                <div class="toolbar">
+                    <div>
+                        <p class="page-description" style="margin:0">Danh sách tất cả phiếu nhập và phiếu xuất.</p>
+                    </div>
+                    <div class="toolbar-actions"><select class="history-filter" id="history-filter"
+                            aria-label="Lọc loại phiếu">
+                            <option value="all">Tất cả giao dịch</option>
+                            <option value="in">Phiếu nhập</option>
+                            <option value="out">Phiếu xuất</option>
+                        </select><button class="button" id="history-export-button">↓ Xuất CSV</button></div>
+                </div>
+                <section class="panel section-panel">
+                    <div class="table-wrap">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Mã phiếu</th>
+                                    <th>Loại phiếu</th>
+                                    <th>Sản phẩm</th>
+                                    <th>Số lượng</th>
+                                    <th>Ghi chú</th>
+                                    <th>Thời gian</th>
+                                </tr>
+                            </thead>
+                            <tbody id="history-table"></tbody>
+                        </table>
+                    </div>
+                </section>
+            </section>
+            <p class="footer-note">Kho Mộc · Quản lý nhập xuất đơn giản</p>
+        </main>
+    </div>
+
+    <dialog id="transaction-dialog">
+        <div class="dialog-head">
+            <div>
+                <h2 id="transaction-title">Tạo phiếu nhập</h2>
+                <p>Thông tin sẽ được cập nhật vào tồn kho.</p>
+            </div><button class="close-button" type="button" data-close="transaction-dialog"
+                aria-label="Đóng">×</button>
+        </div>
+        <form class="form" id="transaction-form">
+            <label class="field">Sản phẩm<select id="transaction-product" required></select></label>
+            <div class="form-row"><label class="field">Số lượng<input id="transaction-quantity" type="number" min="1"
+                        step="1" required placeholder="Ví dụ: 10"></label><label class="field">Ngày giao dịch<input
+                        id="transaction-date" type="date" required></label></div>
+            <label class="field">Ghi chú<input id="transaction-note" maxlength="80"
+                    placeholder="Nhà cung cấp, đơn hàng... "></label>
+            <div class="form-error" id="transaction-error" role="alert"></div>
+            <div class="form-actions"><button class="button" type="button"
+                    data-close="transaction-dialog">Hủy</button><button class="button button-primary" type="submit">Lưu
+                    phiếu</button></div>
+        </form>
+    </dialog>
+    <dialog id="product-dialog">
+        <div class="dialog-head">
+            <div>
+                <h2>Thêm sản phẩm</h2>
+                <p>Tạo mã hàng mới trong danh mục kho.</p>
+            </div><button class="close-button" type="button" data-close="product-dialog" aria-label="Đóng">×</button>
+        </div>
+        <form class="form" id="product-form">
+            <label class="field">Tên sản phẩm<input id="product-name" required maxlength="60"
+                    placeholder="Ví dụ: Bình giữ nhiệt"></label>
+            <div class="form-row"><label class="field">Mã sản phẩm<input id="product-sku" required maxlength="24"
+                        placeholder="VD: SP-105"></label><label class="field">Danh mục<input id="product-category"
+                        required maxlength="32" placeholder="Đồ gia dụng"></label></div>
+            <div class="form-row"><label class="field">Đơn vị<input id="product-unit" required maxlength="12"
+                        placeholder="cái"></label><label class="field">Tồn kho ban đầu<input id="product-stock"
+                        type="number" min="0" step="1" required value="0"></label></div>
+            <label class="field">Định mức tồn thấp<input id="product-minimum" type="number" min="0" step="1" required
+                    value="5"></label>
+            <div class="form-error" id="product-error" role="alert"></div>
+            <div class="form-actions"><button class="button" type="button"
+                    data-close="product-dialog">Hủy</button><button class="button button-primary" type="submit">Thêm sản
+                    phẩm</button></div>
+        </form>
+    </dialog>
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+    <script>
+        const storageKey = "kho-moc-data-v1";
+        const sampleData = {
+            products: [
+                { id: "p1", name: "Bình giữ nhiệt 500ml", sku: "GD-001", category: "Đồ gia dụng", unit: "cái", stock: 42, minimum: 10, icon: "◉" },
+                { id: "p2", name: "Túi vải canvas", sku: "PK-014", category: "Phụ kiện", unit: "cái", stock: 8, minimum: 12, icon: "▱" },
+                { id: "p3", name: "Sổ tay bìa kraft", sku: "VP-032", category: "Văn phòng phẩm", unit: "quyển", stock: 67, minimum: 15, icon: "▤" },
+                { id: "p4", name: "Đèn bàn Mini", sku: "GD-021", category: "Đồ gia dụng", unit: "cái", stock: 5, minimum: 8, icon: "◒" },
+                { id: "p5", name: "Ly sứ men xanh", sku: "GD-017", category: "Đồ gia dụng", unit: "cái", stock: 24, minimum: 10, icon: "◡" }
+            ],
+            transactions: [
+                { id: "PN-2604-003", type: "in", productId: "p1", quantity: 20, note: "Nhập hàng đợt mới", date: todayISO(), createdAt: Date.now() - 1000 * 60 * 28 },
+                { id: "PX-2604-002", type: "out", productId: "p3", quantity: 4, note: "Đơn hàng #1042", date: todayISO(), createdAt: Date.now() - 1000 * 60 * 95 },
+                { id: "PN-2604-002", type: "in", productId: "p5", quantity: 12, note: "Nhà cung cấp Minh An", date: todayISO(), createdAt: Date.now() - 1000 * 60 * 60 * 3 },
+                { id: "PX-2604-001", type: "out", productId: "p2", quantity: 3, note: "Đơn hàng #1038", date: todayISO(), createdAt: Date.now() - 1000 * 60 * 60 * 5 }
+            ]
+        };
+
+        function todayISO() {
+            const date = new Date();
+            date.setMinutes(date.getMinutes() - date.getTimezoneOffset());
+            return date.toISOString().slice(0, 10);
+        }
+
+        function loadData() {
+            try {
+                const stored = localStorage.getItem(storageKey);
+                if (stored) return JSON.parse(stored);
+            } catch (error) {
+                console.warn("Không thể đọc dữ liệu kho đã lưu.", error);
+            }
+            return structuredClone(sampleData);
+        }
+
+        let data = loadData();
+        let currentView = "overview";
+        let transactionType = "in";
+        let toastTimer;
+
+        const numberFormat = new Intl.NumberFormat("vi-VN");
+        const dateFormat = new Intl.DateTimeFormat("vi-VN", { day: "2-digit", month: "2-digit", year: "numeric" });
+        const dateTimeFormat = new Intl.DateTimeFormat("vi-VN", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" });
+        const byId = (id) => document.getElementById(id);
+        const safe = (value) => String(value ?? "").replace(/[&<>"']/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[char]);
+        const productById = (id) => data.products.find((product) => product.id === id);
+        const isLow = (product) => product.stock <= product.minimum;
+        const sortedTransactions = () => [...data.transactions].sort((a, b) => new Date(b.date) - new Date(a.date) || b.createdAt - a.createdAt);
+
+        function saveData() {
+            localStorage.setItem(storageKey, JSON.stringify(data));
+        }
+
+        function showToast(message) {
+            const toast = byId("toast");
+            toast.textContent = message;
+            toast.classList.add("show");
+            clearTimeout(toastTimer);
+            toastTimer = setTimeout(() => toast.classList.remove("show"), 2600);
+        }
+
+        function emptyRow(columns, message) {
+            return `<tr><td colspan="${columns}" class="empty">${safe(message)}</td></tr>`;
+        }
+
+        function renderMetrics() {
+            byId("metric-products").textContent = numberFormat.format(data.products.length);
+            byId("metric-units").textContent = numberFormat.format(data.products.reduce((total, product) => total + Number(product.stock), 0));
+            byId("metric-in").textContent = numberFormat.format(data.transactions.filter((transaction) => transaction.type === "in" && transaction.date === todayISO()).reduce((total, transaction) => total + Number(transaction.quantity), 0));
+            byId("metric-low").textContent = numberFormat.format(data.products.filter(isLow).length);
+        }
+
+        function productRows(products, withActions = false) {
+            if (!products.length) return emptyRow(withActions ? 7 : 4, "Chưa có sản phẩm phù hợp.");
+            return products.map((product) => `<tr>
+        <td><div class="product-cell"><span class="product-thumb">${safe(product.icon || "▦")}</span><div><div class="product-name">${safe(product.name)}</div><div class="product-sku">${safe(product.sku)}</div></div></div></td>
+        <td>${safe(product.category)}</td>
+        ${withActions ? `<td>${safe(product.unit)}</td>` : ""}
+        <td class="qty">${numberFormat.format(product.stock)} ${withActions ? "" : safe(product.unit)}</td>
+        ${withActions ? `<td>${numberFormat.format(product.minimum)} ${safe(product.unit)}</td>` : ""}
+        <td><span class="status ${isLow(product) ? "status-low" : ""}">${isLow(product) ? "Sắp hết" : "Đang có"}</span></td>
+        ${withActions ? `<td><button class="text-button button-small" data-quick-transaction="in" data-product="${safe(product.id)}">Nhập hàng</button></td>` : ""}
+      </tr>`).join("");
+        }
+
+        function transactionRows(transactions, includeId = false) {
+            if (!transactions.length) return emptyRow(includeId ? 6 : 5, "Chưa có giao dịch nào.");
+            return transactions.map((transaction) => {
+                const product = productById(transaction.productId);
+                const kind = transaction.type === "in" ? "Nhập kho" : "Xuất kho";
+                const sign = transaction.type === "in" ? "+" : "−";
+                const when = transaction.createdAt ? dateTimeFormat.format(new Date(transaction.createdAt)) : dateFormat.format(new Date(`${transaction.date}T00:00:00`));
+                return `<tr>
+          ${includeId ? `<td class="product-sku">${safe(transaction.id)}</td>` : ""}
+          <td><span class="movement movement-${transaction.type}">${transaction.type === "in" ? "↙" : "↗"} ${kind}</span></td>
+          <td>${safe(product?.name || "Sản phẩm đã xóa")}</td>
+          <td class="qty">${sign}${numberFormat.format(transaction.quantity)} ${safe(product?.unit || "")}</td>
+          <td>${safe(transaction.note || "—")}</td><td>${safe(when)}</td>
+        </tr>`;
+            }).join("");
+        }
+
+        function renderOverview() {
+            renderMetrics();
+            byId("overview-products").innerHTML = productRows(data.products.slice(0, 5));
+            const lowProducts = data.products.filter(isLow);
+            byId("low-stock-list").innerHTML = lowProducts.length ? lowProducts.map((product) => `<div class="stock-row"><div class="stock-product"><span class="product-thumb">${safe(product.icon || "▦")}</span><div><div class="stock-name">${safe(product.name)}</div><div class="stock-sku">${safe(product.sku)} · Tối thiểu ${numberFormat.format(product.minimum)}</div></div></div><span class="stock-count">${numberFormat.format(product.stock)} ${safe(product.unit)}</span></div>`).join("") : `<div class="empty">Không có mặt hàng nào cần bổ sung.</div>`;
+            byId("overview-history").innerHTML = transactionRows(sortedTransactions().slice(0, 5));
+        }
+
+        function renderProducts() {
+            const query = byId("product-search").value.trim().toLocaleLowerCase("vi");
+            const filtered = data.products.filter((product) => `${product.name} ${product.sku} ${product.category}`.toLocaleLowerCase("vi").includes(query));
+            byId("products-table").innerHTML = productRows(filtered, true);
+        }
+
+        function renderHistory() {
+            const filter = byId("history-filter").value;
+            const transactions = sortedTransactions().filter((transaction) => filter === "all" || transaction.type === filter);
+            byId("history-table").innerHTML = transactionRows(transactions, true);
+        }
+
+        function render() {
+            renderOverview();
+            renderProducts();
+            renderHistory();
+        }
+
+        function setView(view) {
+            const names = { overview: "Tổng quan", products: "Hàng hóa", history: "Nhập xuất" };
+            const descriptions = { overview: "Theo dõi lượng hàng và các giao dịch gần đây.", products: "Quản lý danh mục và số lượng tồn của từng mặt hàng.", history: "Tra cứu các phiếu nhập, phiếu xuất đã ghi nhận." };
+            byId("page-title").textContent = view === "overview" ? "Tổng quan kho" : names[view];
+            byId("page-description").textContent = descriptions[view];
+            byId("breadcrumb").textContent = names[view];
+            document.querySelector(".metrics").hidden = view !== "overview";
+            byId("overview-content").hidden = view !== "overview";
+            byId("overview-activity").hidden = view !== "overview";
+            byId("products-view").hidden = view !== "products";
+            byId("history-view").hidden = view !== "history";
+            document.querySelectorAll(".nav-button").forEach((button) => {
+                if (button.dataset.view === view) button.setAttribute("aria-current", "page");
+                else button.removeAttribute("aria-current");
+            });
+            render();
+        }
+
+        function openTransaction(type, productId = "") {
+            transactionType = type;
+            byId("transaction-title").textContent = type === "in" ? "Tạo phiếu nhập" : "Tạo phiếu xuất";
+            const select = byId("transaction-product");
+            select.innerHTML = data.products.length ? data.products.map((product) => `<option value="${safe(product.id)}">${safe(product.name)} · Tồn ${numberFormat.format(product.stock)} ${safe(product.unit)}</option>`).join("") : `<option value="">Chưa có sản phẩm</option>`;
+            if (productId) select.value = productId;
+            byId("transaction-date").value = todayISO();
+            byId("transaction-quantity").value = "";
+            byId("transaction-note").value = "";
+            byId("transaction-error").classList.remove("show");
+            byId("transaction-dialog").showModal();
+        }
+
+        function createCsv(rows) {
+            return "\uFEFF" + rows.map((row) => row.map((value) => `"${String(value ?? "").replace(/"/g, '""')}"`).join(",")).join("\r\n");
+        }
+
+        function downloadCsv(filename, rows) {
+            const link = document.createElement("a");
+            const url = URL.createObjectURL(new Blob([createCsv(rows)], { type: "text/csv;charset=utf-8" }));
+            link.href = url;
+            link.download = filename;
+            link.click();
+            URL.revokeObjectURL(url);
+            showToast("Đã tải file CSV.");
+        }
+
+        document.querySelectorAll("[data-view]").forEach((button) => button.addEventListener("click", () => setView(button.dataset.view)));
+        document.querySelectorAll("[data-go]").forEach((button) => button.addEventListener("click", () => setView(button.dataset.go)));
+        document.querySelectorAll("[data-transaction]").forEach((button) => button.addEventListener("click", () => openTransaction(button.dataset.transaction)));
+        document.querySelectorAll("[data-close]").forEach((button) => button.addEventListener("click", () => byId(button.dataset.close).close()));
+        byId("product-search").addEventListener("input", renderProducts);
+        byId("history-filter").addEventListener("change", renderHistory);
+        byId("add-product-button").addEventListener("click", () => {
+            byId("product-form").reset();
+            byId("product-error").classList.remove("show");
+            byId("product-dialog").showModal();
+        });
+
+        document.addEventListener("click", (event) => {
+            const quickButton = event.target.closest("[data-quick-transaction]");
+            if (quickButton) openTransaction(quickButton.dataset.quickTransaction, quickButton.dataset.product);
+        });
+
+        byId("transaction-form").addEventListener("submit", (event) => {
+            event.preventDefault();
+            const product = productById(byId("transaction-product").value);
+            const quantity = Number(byId("transaction-quantity").value);
+            const error = byId("transaction-error");
+            if (!product || !Number.isInteger(quantity) || quantity < 1) {
+                error.textContent = "Vui lòng chọn sản phẩm và nhập số lượng hợp lệ.";
+                error.classList.add("show");
+                return;
+            }
+            if (transactionType === "out" && quantity > product.stock) {
+                error.textContent = `Số lượng xuất vượt tồn kho. Hiện chỉ còn ${numberFormat.format(product.stock)} ${product.unit}.`;
+                error.classList.add("show");
+                return;
+            }
+            product.stock += transactionType === "in" ? quantity : -quantity;
+            const prefix = transactionType === "in" ? "PN" : "PX";
+            const datePart = byId("transaction-date").value.replaceAll("-", "").slice(2);
+            const dailyCount = data.transactions.filter((item) => item.type === transactionType && item.date === byId("transaction-date").value).length + 1;
+            data.transactions.push({
+                id: `${prefix}-${datePart}-${String(dailyCount).padStart(3, "0")}`,
+                type: transactionType,
+                productId: product.id,
+                quantity,
+                note: byId("transaction-note").value.trim(),
+                date: byId("transaction-date").value,
+                createdAt: Date.now()
+            });
+            saveData();
+            render();
+            byId("transaction-dialog").close();
+            showToast(transactionType === "in" ? "Đã ghi nhận phiếu nhập." : "Đã ghi nhận phiếu xuất.");
+        });
+
+        byId("product-form").addEventListener("submit", (event) => {
+            event.preventDefault();
+            const sku = byId("product-sku").value.trim();
+            const error = byId("product-error");
+            if (data.products.some((product) => product.sku.toLocaleLowerCase("vi") === sku.toLocaleLowerCase("vi"))) {
+                error.textContent = "Mã sản phẩm này đã tồn tại. Vui lòng nhập mã khác.";
+                error.classList.add("show");
+                return;
+            }
+            data.products.push({
+                id: `p-${Date.now()}`,
+                name: byId("product-name").value.trim(),
+                sku,
+                category: byId("product-category").value.trim(),
+                unit: byId("product-unit").value.trim(),
+                stock: Number(byId("product-stock").value),
+                minimum: Number(byId("product-minimum").value),
+                icon: "▦"
+            });
+            saveData();
+            render();
+            byId("product-dialog").close();
+            showToast("Đã thêm sản phẩm mới.");
+        });
+
+        byId("export-button").addEventListener("click", () => downloadCsv("danh-sach-hang-hoa.csv", [["Mã sản phẩm", "Tên sản phẩm", "Danh mục", "Đơn vị", "Tồn kho", "Định mức"], ...data.products.map((product) => [product.sku, product.name, product.category, product.unit, product.stock, product.minimum])]));
+        byId("history-export-button").addEventListener("click", () => downloadCsv("lich-su-nhap-xuat.csv", [["Mã phiếu", "Loại phiếu", "Mã sản phẩm", "Tên sản phẩm", "Số lượng", "Ghi chú", "Ngày"], ...sortedTransactions().map((transaction) => [transaction.id, transaction.type === "in" ? "Nhập kho" : "Xuất kho", productById(transaction.productId)?.sku || "", productById(transaction.productId)?.name || "", transaction.quantity, transaction.note, transaction.date])]));
+
+        byId("today").textContent = new Intl.DateTimeFormat("vi-VN", { weekday: "short", day: "numeric", month: "short", year: "numeric" }).format(new Date());
+        byId("transaction-date").value = todayISO();
+        render();
+    </script>
+</body>
+
+</html>
